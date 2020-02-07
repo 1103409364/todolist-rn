@@ -1,11 +1,12 @@
 import React, {SFC, useState} from 'react';
-import {View, Text, Button, StyleSheet} from 'react-native';
+import {View, Text, TextInput, Button, StyleSheet} from 'react-native';
 import Swipeout from 'react-native-swipeout';
 import {timeFilter} from '../utils/filter';
 
 interface ItemProps {
   todoItem: TodoItem;
   handleDelTodo(itemId: number): void;
+  handleEditTodo(item: object): void;
   toggleComplete(itemId: number): void;
   toggleSticky(itemId: number): void;
 }
@@ -14,9 +15,12 @@ interface ItemProps {
 const Todo: SFC<ItemProps> = ({
   todoItem,
   handleDelTodo,
+  handleEditTodo,
   toggleComplete,
   toggleSticky,
 }) => {
+  const [isEdit, setEdit] = useState(false);
+  const [editItem, setEditTodo] = useState({id: 0, content: ''});
   // Buttons 滑动按钮配置
   const swipeoutBtns = [
     {
@@ -39,6 +43,28 @@ const Todo: SFC<ItemProps> = ({
     },
   ];
 
+  const handLongPress = (item: TodoItem): void => {
+    // console.log(item);
+    setEditTodo({
+      id: item.id,
+      content: item.content,
+      // 修改时间 Date.now()
+    });
+    setEdit(true);
+  };
+
+  const handleChange = (text: string): void => {
+    setEditTodo({
+      id: editItem.id,
+      content: text,
+    });
+  };
+
+  const handleBlur = (): void => {
+    setEdit(false);
+    handleEditTodo(editItem);
+  };
+
   return (
     <Swipeout style={styles.wrap} right={swipeoutBtns} autoClose={true}>
       <View
@@ -46,15 +72,32 @@ const Todo: SFC<ItemProps> = ({
           styles.todoItem,
           todoItem.complete ? styles.todoComplete : null,
           todoItem.isTop ? styles.top : null,
+          isEdit ? styles.edit : null,
         ]}>
         <Text style={styles.time}>{timeFilter(todoItem.id)}</Text>
-        <Text
-          style={[
-            styles.content,
-            todoItem.complete ? styles.contentComplete : null,
-          ]}>
-          {todoItem.content}
-        </Text>
+        {isEdit ? (
+          <TextInput
+            multiline={true}
+            editable={isEdit}
+            value={editItem.content}
+            autoFocus={true}
+            onChangeText={text => handleChange(text)}
+            onBlur={handleBlur}
+            style={[
+              styles.input,
+              todoItem.complete ? styles.contentComplete : null,
+            ]}
+          />
+        ) : (
+          <Text
+            onPress={() => handLongPress(todoItem)} //长按编辑
+            style={[
+              styles.content,
+              todoItem.complete ? styles.contentComplete : null,
+            ]}>
+            {todoItem.content}
+          </Text>
+        )}
       </View>
     </Swipeout>
   );
@@ -76,6 +119,11 @@ const styles = StyleSheet.create({
     borderLeftWidth: 4,
     fontSize: 14,
   },
+  edit: {
+    backgroundColor: '#fff',
+    borderColor: '#841584',
+    borderWidth: 1,
+  },
   todoComplete: {
     backgroundColor: '#eee',
     borderLeftColor: '#337ab7',
@@ -88,42 +136,13 @@ const styles = StyleSheet.create({
     color: '#888585',
   },
   content: {
+    paddingTop: 10,
+    paddingBottom: 10,
     lineHeight: 25,
+    color: '#333',
   },
   contentComplete: {
     color: '#888585',
     textDecorationLine: 'line-through',
   },
-  // headerWrap: {
-  //   paddingLeft: 10,
-  //   paddingRight: 10,
-  // },
-  // appTitle: {
-  //   textAlign: 'center',
-  //   fontSize: 40,
-  //   lineHeight: 80,
-  //   color: '#841584',
-  // },
-  // inputWrap: {
-  //   flexDirection: 'row',
-  //   width: '100%',
-  // },
-  // input: {
-  //   marginRight: 10,
-  //   paddingLeft: 10,
-  //   height: 40,
-  //   width: 200,
-  //   borderColor: '#841584',
-  //   borderWidth: 1,
-  //   flex: 1,
-  // },
-  // tips: {
-  //   color: 'red',
-  // },
-  // button: {
-  //   width: 40,
-  //   paddingVertical: 0,
-  //   color: '#841584',
-  //   textAlignVertical: 'center',
-  // },
 });

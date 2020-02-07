@@ -1,19 +1,13 @@
 import React, {SFC} from 'react';
 import Todo from './Todo';
 import {TODOTYPE} from './todoType';
-import {
-  View,
-  ScrollView,
-  Text,
-  TextInput,
-  Button,
-  StyleSheet,
-} from 'react-native';
+import {View, ScrollView, StyleSheet} from 'react-native';
 
 interface BodyProps {
   list: Array<TodoItem>;
   todoType: string;
   handleDelTodo(itemId: number): void;
+  handleEditTodo(item: TodoItem): void;
   toggleComplete(itemId: number): void;
   toggleSticky(itemId: number): void;
 }
@@ -22,11 +16,12 @@ const TodoBody: SFC<BodyProps> = ({
   list,
   todoType,
   handleDelTodo,
+  handleEditTodo,
   toggleComplete,
   toggleSticky,
-  ...restProps
 }) => {
   return (
+    // 置顶和普通列表分开渲染
     <ScrollView style={styles.todoBody}>
       <View>
         {list
@@ -35,6 +30,7 @@ const TodoBody: SFC<BodyProps> = ({
             <Todo
               key={item.id}
               todoItem={item}
+              handleEditTodo={handleEditTodo}
               handleDelTodo={handleDelTodo}
               toggleComplete={toggleComplete}
               toggleSticky={toggleSticky}
@@ -58,6 +54,7 @@ const TodoBody: SFC<BodyProps> = ({
               key={item.id}
               todoItem={item}
               handleDelTodo={handleDelTodo}
+              handleEditTodo={handleEditTodo}
               toggleComplete={toggleComplete}
               toggleSticky={toggleSticky}
             />

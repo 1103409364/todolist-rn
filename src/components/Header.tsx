@@ -45,6 +45,7 @@ const Header: SFC<HeaderProps> = ({handleAddClick, ...restProps}) => {
       <Text style={styles.appTitle}>TodoList</Text>
       <View style={styles.inputWrap}>
         <TextInput
+          multiline={true}
           placeholder="请输入"
           style={styles.input}
           onChangeText={text => handleChange(text)}

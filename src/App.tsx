@@ -1,5 +1,5 @@
 import React, {SFC, useState, useEffect} from 'react';
-import {StyleSheet, Button, Text, View, StatusBar} from 'react-native';
+import {StyleSheet, View, StatusBar} from 'react-native';
 import Header from './components/Header';
 import TodoBody from './components/TodoBody';
 import Footer from './components/Footer';
@@ -8,9 +8,10 @@ import DeviceStorage from './utils/storage';
 
 const App: SFC = () => {
   let initial: Array<TodoItem> = [];
+
   const [todoList, setTodoList] = useState(initial);
   const [todoType, setType] = useState(TODOTYPE.ALL);
-  const [count, setCount] = useState(0);
+  // const [count, setCount] = useState(0);
 
   useEffect(() => {
     // 默认返回一个空数组
@@ -24,13 +25,10 @@ const App: SFC = () => {
     DeviceStorage.save('todolist', todoList);
   }, [todoList]); // 只在todolist发生变化时执行
 
-  const handleAddClick = (
-    todoitem: TodoItem,
-  ): void => {
+  const handleAddClick = (todoitem: TodoItem): void => {
     // console.log(todoitem);
-
     let newList: Array<TodoItem> = [todoitem, ...todoList];
-    setCount(count + 1);
+    // setCount(count + 1);
     setTodoList(newList);
   };
 
@@ -41,9 +39,21 @@ const App: SFC = () => {
     setTodoList(newList);
   };
 
+  const handleEditTodo = (editItem: TodoItem): void => {
+    // console.log('编辑', editItem);
+    let newList: Array<TodoItem> = todoList.map(item => {
+      if (item.id === editItem.id) {
+        item.content = editItem.content;
+        return item;
+      }
+      return item;
+    });
+    setTodoList(newList);
+    // setEdit(item);
+  };
+
   const toggleComplete = (itemId: number): void => {
     // console.log(itemId);
-
     let newList: Array<TodoItem> = todoList.map(
       (item: TodoItem): TodoItem => {
         if (item.id === itemId) {
@@ -75,13 +85,14 @@ const App: SFC = () => {
     <View style={styles.app}>
       <StatusBar backgroundColor="#fff" barStyle="dark-content" />
       <View style={styles.header}>
-        <Header handleAddClick={handleAddClick}></Header>
+        <Header handleAddClick={handleAddClick} />
       </View>
       <View style={styles.body}>
         <TodoBody
           todoType={todoType}
           list={todoList}
           handleDelTodo={handleDelTodo}
+          handleEditTodo={handleEditTodo}
           toggleComplete={toggleComplete}
           toggleSticky={toggleSticky}
         />
